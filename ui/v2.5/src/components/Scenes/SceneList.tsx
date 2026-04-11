@@ -487,7 +487,11 @@ export const FilteredSceneList = PatchComponent(
     const playRandom = usePlayRandom(effectiveFilter, totalCount);
     const playSelected = usePlaySelected(selectedIds);
     const playFirst = usePlayFirst();
-    const { bulkAddToQueue, bulkRemoveFromQueue } = useWatchQueue();
+    const {
+      isInQueue,
+      bulkAddToQueue,
+      bulkRemoveFromQueue,
+    } = useWatchQueue();
 
     function onCreateNew() {
       let queryParam = new URLSearchParams(location.search).get("q");
@@ -615,13 +619,16 @@ export const FilteredSceneList = PatchComponent(
         isDisplayed: () => hasSelection,
       },
       {
-        text: intl.formatMessage({ id: "actions.add_to_watch_queue" }),
-        onClick: () => bulkAddToQueue(Array.from(selectedIds.values())),
-        isDisplayed: () => hasSelection,
-      },
-      {
-        text: intl.formatMessage({ id: "actions.remove_from_watch_queue" }),
-        onClick: () => bulkRemoveFromQueue(Array.from(selectedIds.values())),
+        text: intl.formatMessage({ id: "actions.toggle_watch_queue" }),
+        onClick: () => {
+          const ids = Array.from(selectedIds.values());
+          const allInQueue = selectedItems.every((s) => isInQueue(s));
+          if (allInQueue) {
+            bulkRemoveFromQueue(ids);
+          } else {
+            bulkAddToQueue(ids);
+          }
+        },
         isDisplayed: () => hasSelection,
       },
       {
